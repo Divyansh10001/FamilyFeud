@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Feud - Live Game Board</title>
+  <meta name="description" content="Authentic TV-style interactive game board for Family Feud with real show rules, face-offs, steals, and Fast Money.">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/board.css">
+</head>
+<body class="board-body">
+
+  <!-- Audio elements for sound effects -->
+  <audio id="sound-ding" src="/assets/sounds/ding.wav" preload="auto"></audio>
+  <audio id="sound-strike" src="/assets/sounds/strike.wav" preload="auto"></audio>
+  <audio id="sound-buzz" src="/assets/sounds/buzz.wav" preload="auto"></audio>
+  <audio id="sound-win" src="/assets/sounds/win.wav" preload="auto"></audio>
+  <audio id="sound-tick" src="/assets/sounds/tick.wav" preload="auto"></audio>
+  <audio id="sound-grandprize" src="/assets/sounds/grandprize.wav" preload="auto"></audio>
+
+  <!-- Top Utilities Bar -->
+  <aside class="board-topbar">
+    <div class="brand">
+      <span class="brand-badge">TV SHOW</span>
+      <h1 class="brand-title">FAMILY FEUD</h1>
+      <span class="target-rule-badge">FIRST TO 300 PTS WINS</span>
+    </div>
+
+    <!-- Active Buzzer Alert Banner -->
+    <div id="buzzer-banner" class="buzzer-banner hidden">
+      <span class="buzzer-icon">⚡</span>
+      <span id="buzzer-banner-text">TEAM A BUZZED IN FIRST!</span>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound">🔊</button>
+      <button id="btn-fullscreen" class="icon-btn" title="Toggle Fullscreen">⛶</button>
+    </div>
+  </aside>
+
+  <!-- TV Show Phase Banner -->
+  <section class="phase-banner-wrapper" aria-label="Current Show Phase">
+    <div id="phase-banner" class="phase-banner face-off">
+      <span class="phase-icon">🔔</span>
+      <span id="phase-text" class="phase-text">ROUND 1 • THE FACE-OFF</span>
+    </div>
+  </section>
+
+  <!-- Main Game Stage (Standard Board View) -->
+  <main id="standard-stage" class="game-stage">
+
+    <!-- Scoreboards & Center Bank -->
+    <header class="stage-header">
+      <!-- Team A Scoreboard -->
+      <section class="team-podium team-a" id="podium-team-a" aria-label="Team A Scoreboard">
+        <div class="team-tag" id="label-team-a">TEAM A</div>
+        <div class="team-score-display" id="score-team-a">0</div>
+        <div class="team-indicator" id="indicator-team-a">WAITING</div>
+      </section>
+
+      <!-- Center Accumulated Bank -->
+      <section class="bank-container" aria-label="Current Round Bank">
+        <div class="round-badge" id="round-badge">ROUND 1 (1X)</div>
+        <div class="bank-points" id="bank-points">0</div>
+        <div class="bank-label">POINTS IN BANK</div>
+      </section>
+
+      <!-- Team B Scoreboard -->
+      <section class="team-podium team-b" id="podium-team-b" aria-label="Team B Scoreboard">
+        <div class="team-tag" id="label-team-b">TEAM B</div>
+        <div class="team-score-display" id="score-team-b">0</div>
+        <div class="team-indicator" id="indicator-team-b">WAITING</div>
+      </section>
+    </header>
+
+    <!-- Persistent Strike Counter Dots -->
+    <section class="strike-tracker" aria-label="Current Strikes Count">
+      <div class="strike-dot" id="dot-strike-1">✕</div>
+      <div class="strike-dot" id="dot-strike-2">✕</div>
+      <div class="strike-dot" id="dot-strike-3">✕</div>
+    </section>
+
+    <!-- Central Question Container -->
+    <section class="question-marquee" aria-label="Current Survey Question">
+      <div class="marquee-frame">
+        <h2 id="board-question" class="question-text">Waiting for host to start the round...</h2>
+      </div>
+    </section>
+
+    <!-- 8-Answer Board Grid (2 columns of 4) -->
+    <section class="board-grid-wrapper" aria-label="Answers Board">
+      <div class="answers-grid" id="answers-grid">
+        <!-- 8 Tiles populated dynamically with 3D flip card structure -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Fast Money Bonus Stage (Shown during Fast Money Round) -->
+  <main id="fast-money-stage" class="fast-money-stage hidden">
+    <header class="fm-header">
+      <div class="fm-title-group">
+        <span class="fm-badge">BONUS ROUND</span>
+        <h2 class="fm-main-title">FAST MONEY</h2>
+        <span class="fm-goal-badge">GOAL: 200 PTS FOR $20,000!</span>
+      </div>
+
+      <!-- Fast Money Timer Clock -->
+      <div class="fm-timer-card">
+        <div class="fm-timer-label">TIMER</div>
+        <div class="fm-timer-seconds" id="fm-timer-display">20</div>
+      </div>
+
+      <!-- Fast Money Total Points Bank -->
+      <div class="fm-total-card">
+        <div class="fm-total-label">TOTAL SCORE</div>
+        <div class="fm-total-val" id="fm-total-score">0</div>
+      </div>
+    </header>
+
+    <!-- Fast Money 5-Question Board Grid -->
+    <section class="fm-board-grid">
+      <div class="fm-columns-header">
+        <span class="fm-col-title">SURVEY QUESTION</span>
+        <span class="fm-col-title">PLAYER 1</span>
+        <span class="fm-col-title fm-col-pts">PTS</span>
+        <span class="fm-col-title">PLAYER 2</span>
+        <span class="fm-col-title fm-col-pts">PTS</span>
+      </div>
+
+      <div class="fm-rows-container" id="fm-rows-container">
+        <!-- 5 Fast money question rows injected here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Giant Pop-Up Strike Overlay -->
+  <div id="strike-overlay" class="strike-overlay hidden" aria-hidden="true">
+    <div class="strike-box" id="strike-box">
+      <!-- Big red X's injected here -->
+    </div>
+  </div>
+
+  <!-- Face-Off Buzzer Flash Splash -->
+  <div id="buzz-flash-overlay" class="buzz-flash-overlay hidden">
+    <div class="buzz-flash-card" id="buzz-flash-card">
+      <div class="buzz-flash-icon">🚨</div>
+      <div class="buzz-flash-team" id="buzz-flash-team">TEAM A</div>
+      <div class="buzz-flash-player" id="buzz-flash-player">Player Name</div>
+      <div class="buzz-flash-subtitle">BUZZED IN FIRST!</div>
+    </div>
+  </div>
+
+  <!-- Steal Attempt Announcement Overlay -->
+  <div id="steal-alert-overlay" class="steal-alert-overlay hidden">
+    <div class="steal-card">
+      <div class="steal-icon">⚡</div>
+      <h2 class="steal-title">3 STRIKES!</h2>
+      <div class="steal-team" id="steal-alert-team">TEAM B</div>
+      <p class="steal-desc">HAS ONE CHANCE TO STEAL THE ENTIRE BANK!</p>
+    </div>
+  </div>
+
+  <!-- Match Champions Overlay (300+ Points Reached) -->
+  <div id="champion-overlay" class="champion-overlay hidden">
+    <div class="champion-card">
+      <div class="champion-crown">👑</div>
+      <h2 class="champion-headline">FAMILY FEUD CHAMPIONS!</h2>
+      <div class="champion-team" id="champion-team-name">TEAM A</div>
+      <div class="champion-score" id="champion-final-score">342 POINTS</div>
+      <p class="champion-sub">Moving on to the FAST MONEY round for $20,000!</p>
+    </div>
+  </div>
+
+  <!-- Grand Prize Fast Money Win Overlay -->
+  <div id="grand-prize-overlay" class="grand-prize-overlay hidden">
+    <div class="grand-prize-card">
+      <div class="grand-prize-money">💵 $20,000 💵</div>
+      <h2 class="grand-prize-headline">GRAND PRIZE WINNER!</h2>
+      <div class="grand-prize-score" id="gp-final-score">214 POINTS</div>
+      <p class="grand-prize-sub">THEY REACHED THE 200-POINT GOAL!</p>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js"></script>
+  <script src="/js/board.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+/* Family Feud Global Styles & Design System */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Poppins:wght@400;600;700;800;900&display=swap');
+
+:root {
+  /* Required Color Palette */
+  --bg-primary: #0A1128;          /* Deep Navy */
+  --bg-secondary: #0d1736;
+  --bg-card: #132042;
+  --tile-unrevealed: #1E2D50;     /* Dark Blue/Grey */
+  --tile-revealed: #F2A900;       /* Vibrant Gold */
+  --tile-revealed-text: #0A1128;  /* Deep Navy Dark Text */
+  --strike-color: #D90429;        /* Bold Crimson */
+  --white: #FFFFFF;
+
+  /* Accent & Theme Colors */
+  --team-a-color: #00D4FF;        /* Electric Cyan */
+  --team-a-glow: rgba(0, 212, 255, 0.4);
+  --team-b-color: #FF8800;        /* Sunset Orange */
+  --team-b-glow: rgba(255, 136, 0, 0.4);
+  --gold-glow: rgba(242, 169, 0, 0.4);
+  --gold-light: #FFD166;
+  --crimson-glow: rgba(217, 4, 41, 0.5);
+
+  /* Typography */
+  --font-main: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Poppins', var(--font-main);
+
+  /* Shadows & Glassmorphism */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-neon-gold: 0 0 20px rgba(242, 169, 0, 0.5), inset 0 0 15px rgba(242, 169, 0, 0.3);
+  --shadow-neon-blue: 0 0 20px rgba(30, 45, 80, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(19, 32, 66, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--white);
+  font-family: var(--font-main);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background Subtle Studio Atmosphere */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    radial-gradient(circle at 50% 15%, rgba(30, 45, 80, 0.5) 0%, transparent 60%),
+    radial-gradient(circle at 10% 90%, rgba(0, 212, 255, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(255, 136, 0, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(242, 169, 0, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Universal Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #F2A900 0%, #D49000 100%);
+  color: #0A1128;
+  border-color: #FFE082;
+  box-shadow: 0 4px 15px rgba(242, 169, 0, 0.35);
+}
+.btn-gold:hover {
+  background: linear-gradient(135deg, #FFB81C 0%, #E59B00 100%);
+  box-shadow: 0 6px 20px rgba(242, 169, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-crimson {
+  background: linear-gradient(135deg, #D90429 0%, #B80020 100%);
+  color: #FFFFFF;
+  border-color: #FF5C77;
+  box-shadow: 0 4px 15px rgba(217, 4, 41, 0.4);
+}
+.btn-crimson:hover {
+  background: linear-gradient(135deg, #EF1238 0%, #C90023 100%);
+  box-shadow: 0 6px 22px rgba(217, 4, 41, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-blue {
+  background: linear-gradient(135deg, #1E2D50 0%, #14203A 100%);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.btn-blue:hover {
+  background: linear-gradient(135deg, #273A66 0%, #192747 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-team-a {
+  background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
+  color: #FFFFFF;
+  border-color: #90E0EF;
+  box-shadow: 0 4px 15px var(--team-a-glow);
+}
+.btn-team-a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
+}
+
+.btn-team-b {
+  background: linear-gradient(135deg, #FF7B00 0%, #E85D04 100%);
+  color: #FFFFFF;
+  border-color: #FFB703;
+  box-shadow: 0 4px 15px var(--team-b-glow);
+}
+.btn-team-b:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 123, 0, 0.6);
+}
+
+/* Glass Card */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Accessibility & Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

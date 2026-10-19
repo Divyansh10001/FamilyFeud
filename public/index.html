@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Feud - Live Television Game Show Portal</title>
+  <meta name="description" content="The ultimate real-time multiplayer Family Feud web application with live TV board, host control console, and mobile player buzzers.">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/lobby.css">
+</head>
+<body class="lobby-body">
+
+  <!-- Ambient Stage Lighting Effects -->
+  <div class="studio-spotlight-left"></div>
+  <div class="studio-spotlight-right"></div>
+
+  <!-- Audio elements for sound test -->
+  <audio id="sound-ding" src="/assets/sounds/ding.wav" preload="auto"></audio>
+  <audio id="sound-strike" src="/assets/sounds/strike.wav" preload="auto"></audio>
+  <audio id="sound-buzz" src="/assets/sounds/buzz.wav" preload="auto"></audio>
+  <audio id="sound-win" src="/assets/sounds/win.wav" preload="auto"></audio>
+
+  <div class="lobby-container">
+
+    <!-- Top Studio Nav Bar -->
+    <header class="lobby-nav">
+      <div class="lobby-brand">
+        <span class="live-indicator">
+          <span class="live-dot"></span> LIVE SHOW
+        </span>
+        <span class="sub-label">REAL SHOW RULES • 1,607 QUESTIONS</span>
+      </div>
+
+      <!-- Quick Studio Sound Test Bar -->
+      <div class="sound-test-bar">
+        <span class="sound-bar-title">AUDIO CHECK:</span>
+        <button class="sound-test-btn" data-sound="ding">🔔 Ding</button>
+        <button class="sound-test-btn" data-sound="strike">✕ Strike</button>
+        <button class="sound-test-btn" data-sound="buzz">⚡ Buzz</button>
+        <button class="sound-test-btn" data-sound="win">🎺 Fanfare</button>
+      </div>
+    </header>
+
+    <!-- Hero Header -->
+    <section class="lobby-hero">
+      <div class="hero-pill">
+        <span>⭐ SURVEY SAYS...</span>
+        <span>MULTIPLAYER LIVE SHOW</span>
+      </div>
+      <h1 class="hero-title">FAMILY FEUD</h1>
+      <p class="hero-sub">
+        The complete real-time television game show experience. Powered by 1,600+ authentic survey questions, 3D flip card animations, mutual buzzer lockout, 3-strike steals, and Fast Money!
+      </p>
+    </section>
+
+    <!-- Real-Time Match Centerpiece (Live Match Telemetry) -->
+    <section class="match-centerpiece" aria-label="Live Match Telemetry">
+      <div class="centerpiece-header">
+        <span class="centerpiece-title">LIVE TELEVISION BROADCAST TELEMETRY</span>
+        <span class="centerpiece-phase-pill" id="live-phase-pill">🔔 The Face-Off</span>
+      </div>
+
+      <div class="centerpiece-teams-row">
+        <!-- Team A Score Card -->
+        <div class="match-team-card match-team-a">
+          <div class="match-team-name" id="live-team-a-name">THE SMITHS</div>
+          <div class="match-team-score" id="live-team-a-score">0</div>
+          <span class="sub-label" style="color: var(--team-a-color);">TEAM A PODIUM</span>
+        </div>
+
+        <!-- Center Match Medallion -->
+        <div class="match-vs-medallion">
+          <span class="match-round-text" id="live-round-num">ROUND 1</span>
+          <span class="match-mult-text" id="live-round-mult">1X</span>
+        </div>
+
+        <!-- Team B Score Card -->
+        <div class="match-team-card match-team-b">
+          <div class="match-team-name" id="live-team-b-name">THE MILLERS</div>
+          <div class="match-team-score" id="live-team-b-score">0</div>
+          <span class="sub-label" style="color: var(--team-b-color);">TEAM B PODIUM</span>
+        </div>
+      </div>
+
+      <!-- Active Question Ticker -->
+      <div class="question-ticker-box">
+        <span class="ticker-label">ON STAGE:</span>
+        <span class="ticker-text" id="live-question-ticker">Loading survey question...</span>
+      </div>
+    </section>
+
+    <!-- 3D Role Portals Grid -->
+    <h2 class="portals-section-title">
+      <span>🎬</span> Select Your Screen or Device
+    </h2>
+
+    <section class="portals-grid" aria-label="Application Role Portals">
+
+      <!-- Portal 1: Main Game Board -->
+      <article class="portal-card portal-card-board">
+        <div>
+          <span class="portal-badge badge-board">TV & PROJECTOR DISPLAY</span>
+          <div class="portal-icon">📺</div>
+          <h3 class="portal-title">Main Game Board</h3>
+          <p class="portal-desc">
+            Full-screen TV broadcast display with metallic 3D flip card animations, dramatic camera-shake strikes, live bank, and the Fast Money bonus stage.
+          </p>
+
+          <ul class="portal-features-list">
+            <li class="portal-feature-item"><span class="feature-check">✓</span> 8-Slot 3D Flip Card Grid</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> 1, 2, or 3 Red 'X' Pop-up Strikes</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Interactive Fast Money Stage ($20,000)</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Fullscreen Mode (Press F)</li>
+          </ul>
+        </div>
+
+        <div class="portal-btn-stack">
+          <a href="/board" class="btn btn-gold btn-block">Launch Game Board</a>
+          <button id="btn-popout-board" class="btn btn-sub btn-block">Open in Pop-Up Window ↗</button>
+        </div>
+      </article>
+
+      <!-- Portal 2: Host Control Deck -->
+      <article class="portal-card portal-card-host">
+        <div>
+          <span class="portal-badge badge-host">GAME MASTER CONSOLE</span>
+          <div class="portal-icon">🎛️</div>
+          <h3 class="portal-title">Host Dashboard</h3>
+          <p class="portal-desc">
+            Complete executive control deck for the game show host. Manage the face-off, reveal answers, resolve 3-strike steals, and operate Fast Money timers.
+          </p>
+
+          <ul class="portal-features-list">
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Real-Time Face-Off & Decision (Play/Pass)</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Automatic 3-Strike Steal Resolution</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> 1,600+ GitHub Survey Database + Custom Qs</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Fast Money 20s/25s Clock & Point Inputs</li>
+          </ul>
+        </div>
+
+        <div class="portal-btn-stack">
+          <a href="/host" class="btn btn-team-a btn-block">Open Host Console</a>
+        </div>
+      </article>
+
+      <!-- Portal 3: Player Mobile Buzzer -->
+      <article class="portal-card portal-card-buzzer">
+        <div>
+          <span class="portal-badge badge-buzzer">MOBILE SMARTPHONE BUZZER</span>
+          <div class="portal-icon">📱</div>
+          <h3 class="portal-title">Player Buzzer</h3>
+          <p class="portal-desc">
+            Minimalist mobile-first touch buzzer for contestants. Tap in real-time to lock out opponents with instant haptic vibration and celebratory sound effects.
+          </p>
+
+          <ul class="portal-features-list">
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Zero-Latency Touch Interaction</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Mutual Lockout (First Buzz Wins)</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Haptic Vibration (navigator.vibrate)</li>
+            <li class="portal-feature-item"><span class="feature-check">✓</span> Automatic Team Color & Name Memory</li>
+          </ul>
+        </div>
+
+        <div class="portal-btn-stack">
+          <a href="/buzzer" class="btn btn-crimson btn-block">Join as Player</a>
+          <button id="btn-show-qr" class="btn btn-sub btn-block">Show QR Code to Join 📲</button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Party Mobile Share & QR Deck -->
+    <section class="party-share-deck" id="party-share-deck" aria-label="Invite Players & QR Code">
+      <div class="share-left-content">
+        <span class="share-tag">⚡ INSTANT MOBILE JOIN</span>
+        <h3 class="share-title">Invite Players to the Buzzer</h3>
+        <p class="share-desc">
+          Guests on the same Wi-Fi can scan the QR code with their smartphone camera or open the link below to enter the game as a player immediately.
+        </p>
+
+        <div class="share-url-box">
+          <span class="share-url-text" id="share-url-text">http://localhost:3000/buzzer</span>
+          <button id="btn-copy-share-url" class="btn btn-gold btn-sm">📋 Copy Link</button>
+        </div>
+      </div>
+
+      <div class="share-right-qr">
+        <div class="qr-frame">
+          <img id="qr-image" class="qr-img" src="" alt="Mobile Buzzer QR Code">
+        </div>
+        <span class="qr-caption">Scan with phone camera to buzz in</span>
+      </div>
+    </section>
+
+    <!-- TV Show Rules & Gameplay Guide -->
+    <section class="rules-section" aria-label="Official TV Show Rules">
+      <h2 class="portals-section-title" style="margin-bottom: 0.5rem;">
+        <span>📜</span> Official Television Show Rules
+      </h2>
+      <p class="sub-label">HOW TO PLAY LIKE THE REAL SHOW</p>
+
+      <div class="rules-grid">
+        <article class="rule-card">
+          <div class="rule-num">01</div>
+          <h4 class="rule-card-title">The Face-Off</h4>
+          <p class="rule-card-text">
+            One representative from each family meets at the buzzer. The first player to buzz in gives an answer. If they guess the #1 answer, their family wins control and chooses to PLAY or PASS!
+          </p>
+        </article>
+
+        <article class="rule-card">
+          <div class="rule-num">02</div>
+          <h4 class="rule-card-title">Playing the Board</h4>
+          <p class="rule-card-text">
+            The playing family takes turns guessing remaining answers with NO conferring! Correct answers reveal tiles and accumulate points in the Bank. Wrong guesses earn a Strike (1, 2, 3).
+          </p>
+        </article>
+
+        <article class="rule-card">
+          <div class="rule-num">03</div>
+          <h4 class="rule-card-title">The 3-Strike Steal</h4>
+          <p class="rule-card-text">
+            If the playing family strikes out 3 times, the defending family confers for ONE chance to steal. If their answer is on the board, they steal the ENTIRE Bank! Otherwise, original team keeps it.
+          </p>
+        </article>
+
+        <article class="rule-card">
+          <div class="rule-num">04</div>
+          <h4 class="rule-card-title">300 Pts & Fast Money</h4>
+          <p class="rule-card-text">
+            Points multiply: 1X (Rounds 1-2), 2X (Round 3), 3X (Round 4+). First family to 300 points wins the match and moves to Fast Money (5 questions, 2 players, 20s/25s, 200 pts for $20,000)!
+          </p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Alert -->
+  <div id="toast-notice" class="toast-notice">✓ Link Copied!</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Feud - Host Control Deck</title>
+  <meta name="description" content="Authentic TV Game Master dashboard for Family Feud with real show rules, face-offs, steals, and Fast Money.">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/host.css">
+</head>
+<body class="host-body">
+
+  <!-- Host Top Navigation -->
+  <header class="host-navbar">
+    <div class="nav-left">
+      <span class="role-badge">GAME MASTER</span>
+      <h1 class="nav-title">HOST DASHBOARD</h1>
+      <span class="rule-tag">REAL SHOW RULES</span>
+    </div>
+    <div class="nav-links">
+      <button id="btn-rename-teams" class="btn btn-blue nav-btn">👥 Edit Family Names</button>
+      <a href="/board" target="_blank" class="btn btn-blue nav-btn">🖥️ Open Board View</a>
+      <a href="/buzzer" target="_blank" class="btn btn-blue nav-btn">📱 Open Buzzer</a>
+      <button id="btn-start-fast-money-nav" class="btn btn-gold nav-btn">💵 Fast Money Mode</button>
+      <button id="btn-reset-game" class="btn btn-crimson nav-btn">🔄 Reset Entire Game</button>
+    </div>
+  </header>
+
+  <!-- Edit Family Names Collapsible Bar -->
+  <section id="rename-bar" class="rename-bar hidden">
+    <div class="rename-inputs">
+      <label class="sub-label">Team A Name:</label>
+      <input type="text" id="input-team-a-name" class="input-text-sm" placeholder="e.g. The Smiths" value="Team A">
+      <label class="sub-label">Team B Name:</label>
+      <input type="text" id="input-team-b-name" class="input-text-sm" placeholder="e.g. The Johnsons" value="Team B">
+      <button id="btn-save-names" class="btn btn-gold btn-xs">Save Names</button>
+    </div>
+  </section>
+
+  <!-- Real TV Show Phase Banner -->
+  <aside class="host-phase-bar" id="host-phase-bar">
+    <div class="phase-indicator-badge" id="host-phase-badge">PHASE: THE FACE-OFF</div>
+    <div class="phase-instruction" id="host-phase-desc">
+      Have 1 player from each family step to the buzzer. Read the question, lock in the first buzz, and decide PLAY or PASS.
+    </div>
+  </aside>
+
+  <main class="host-grid">
+
+    <!-- Column 1: Current Question, Face-off & Answers Matrix -->
+    <section class="host-col col-main" aria-label="Question & Answers Deck">
+      
+      <!-- Question Banner Card -->
+      <article class="host-card question-card">
+        <div class="card-header">
+          <div class="header-left">
+            <span class="sub-label">CURRENT QUESTION</span>
+            <span id="round-indicator" class="badge-gold">ROUND 1 (1X)</span>
+            <span class="sub-label" style="margin-left: 0.5rem;">TARGET: 300 PTS</span>
+          </div>
+          <div class="header-right">
+            <button id="btn-load-question" class="btn btn-gold btn-sm">🎲 Load Random Question</button>
+            <button id="btn-toggle-custom" class="btn btn-blue btn-sm">✏️ Custom Question</button>
+          </div>
+        </div>
+
+        <div class="question-display">
+          <p id="host-question-text" class="question-headline">Loading question from database...</p>
+        </div>
+
+        <!-- Custom Question Collapsible Form -->
+        <div id="custom-question-drawer" class="custom-drawer hidden">
+          <h3 class="drawer-title">Create Custom Question</h3>
+          <input type="text" id="custom-q-input" class="input-text" placeholder="Enter question prompt...">
+          
+          <div class="custom-answers-grid" id="custom-answers-inputs">
+            <!-- 8 answer inputs generated dynamically -->
+          </div>
+
+          <div class="drawer-actions">
+            <button id="btn-save-custom" class="btn btn-gold btn-sm">Set on Board</button>
+            <button id="btn-cancel-custom" class="btn btn-blue btn-sm">Cancel</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Step 1: Face-Off Resolution Box (Real Show Rule) -->
+      <article class="host-card face-off-deck" id="face-off-deck">
+        <div class="card-header">
+          <h2 class="card-title">1. The Face-Off & Decision</h2>
+          <span class="badge-gold" id="fo-buzzer-status">WAITING FOR BUZZ</span>
+        </div>
+
+        <div class="fo-decision-grid">
+          <!-- Team A Wins Face-off -->
+          <div class="fo-team-decision fo-a">
+            <div class="fo-team-label" id="fo-name-a">TEAM A WINS FACE-OFF</div>
+            <div class="fo-buttons">
+              <button class="btn btn-team-a btn-sm btn-fo-decision" data-winner="teamA" data-action="play">
+                ▶ Team A Plays Board
+              </button>
+              <button class="btn btn-blue btn-sm btn-fo-decision" data-winner="teamA" data-action="pass">
+                ⏩ Passes to Team B
+              </button>
+            </div>
+          </div>
+
+          <!-- Team B Wins Face-off -->
+          <div class="fo-team-decision fo-b">
+            <div class="fo-team-label" id="fo-name-b">TEAM B WINS FACE-OFF</div>
+            <div class="fo-buttons">
+              <button class="btn btn-team-b btn-sm btn-fo-decision" data-winner="teamB" data-action="play">
+                ▶ Team B Plays Board
+              </button>
+              <button class="btn btn-blue btn-sm btn-fo-decision" data-winner="teamB" data-action="pass">
+                ⏩ Passes to Team A
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Step 2: The Steal Resolution Deck (Activated on 3 Strikes!) -->
+      <article class="host-card steal-deck hidden" id="steal-deck">
+        <div class="card-header">
+          <h2 class="card-title" style="color: var(--strike-color);">⚡ 3 Strikes! The Steal Chance</h2>
+          <span class="badge-crimson">OPPOSING TEAM CONFERS</span>
+        </div>
+        <p class="card-desc">
+          The playing team struck out (3 Strikes)! The defending family gets ONE guess to steal the bank points.
+        </p>
+        <div class="steal-action-grid">
+          <button id="btn-steal-success" class="btn btn-gold btn-block">
+            ✅ Steal SUCCESSFUL! (Award Bank to Defending Team)
+          </button>
+          <button id="btn-steal-fail" class="btn btn-crimson btn-block">
+            ❌ Steal FAILED! (Original Playing Team Keeps Bank)
+          </button>
+        </div>
+      </article>
+
+      <!-- Answer Reveal Matrix -->
+      <article class="host-card answers-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Survey Answers</h2>
+            <p class="card-desc">Click reveal as players name correct survey answers</p>
+          </div>
+          <div class="bulk-actions">
+            <button id="btn-reveal-all" class="btn btn-gold btn-xs">Reveal All</button>
+            <button id="btn-hide-all" class="btn btn-blue btn-xs">Hide All</button>
+          </div>
+        </div>
+
+        <div class="answers-table" id="host-answers-list">
+          <!-- Answer rows generated dynamically -->
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Column 2: Strikes, Scoreboards, Buzzer Monitor & Fast Money -->
+    <section class="host-col col-controls" aria-label="Game Operations">
+
+      <!-- Strikes Control Deck -->
+      <article class="host-card strikes-card">
+        <div class="card-header">
+          <h2 class="card-title">Strikes Control</h2>
+          <span id="strikes-count-badge" class="badge-crimson">0 STRIKES</span>
+        </div>
+        <div class="strikes-visual" id="host-strikes-visual">
+          <span class="host-strike-dot" id="host-dot-1">✕</span>
+          <span class="host-strike-dot" id="host-dot-2">✕</span>
+          <span class="host-strike-dot" id="host-dot-3">✕</span>
+        </div>
+        <div class="control-btn-group">
+          <button id="btn-award-strike" class="btn btn-crimson btn-block">💥 Wrong Answer / Strike (+1)</button>
+          <button id="btn-clear-strikes" class="btn btn-blue btn-block">🧹 Clear Strikes</button>
+        </div>
+      </article>
+
+      <!-- Points & Scoreboard Operations Deck -->
+      <article class="host-card scoring-card">
+        <div class="card-header">
+          <h2 class="card-title">Bank & Scores (300 to Win)</h2>
+          <div class="bank-pill">
+            <span class="bank-pill-label">BANK:</span>
+            <span id="host-bank-display" class="bank-pill-val">0 PTS</span>
+          </div>
+        </div>
+
+        <!-- Team A Controls -->
+        <div class="team-score-box team-a-box">
+          <div class="team-box-header">
+            <span class="team-name team-a-name" id="host-label-team-a">TEAM A</span>
+            <span id="host-score-team-a" class="team-score-val">0</span>
+          </div>
+          <div class="team-actions">
+            <button id="btn-award-team-a" class="btn btn-team-a btn-block">🏆 Award Bank to Team A</button>
+            <div class="quick-adjust">
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamA" data-delta="10">+10</button>
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamA" data-delta="50">+50</button>
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamA" data-delta="-10">-10</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team B Controls -->
+        <div class="team-score-box team-b-box">
+          <div class="team-box-header">
+            <span class="team-name team-b-name" id="host-label-team-b">TEAM B</span>
+            <span id="host-score-team-b" class="team-score-val">0</span>
+          </div>
+          <div class="team-actions">
+            <button id="btn-award-team-b" class="btn btn-team-b btn-block">🏆 Award Bank to Team B</button>
+            <div class="quick-adjust">
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamB" data-delta="10">+10</button>
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamB" data-delta="50">+50</button>
+              <button class="btn btn-blue btn-xs btn-adj" data-team="teamB" data-delta="-10">-10</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Round Progression (Auto Multipliers) -->
+        <div class="round-control-row">
+          <div class="multiplier-select">
+            <label for="mult-select" class="sub-label">Multiplier:</label>
+            <select id="mult-select" class="input-select">
+              <option value="1">1X (Rounds 1 & 2)</option>
+              <option value="2">2X (Round 3 Double)</option>
+              <option value="3">3X (Round 4+ Triple)</option>
+            </select>
+          </div>
+          <button id="btn-next-round" class="btn btn-gold btn-sm">⏭️ Next Round</button>
+        </div>
+      </article>
+
+      <!-- Face-Off Buzzer Monitor Deck -->
+      <article class="host-card buzzer-deck">
+        <div class="card-header">
+          <h2 class="card-title">Face-Off Buzzer Deck</h2>
+          <div id="buzzer-lock-status" class="status-pill ready">READY / UNLOCKED</div>
+        </div>
+
+        <!-- Active First Buzzer Spotlight -->
+        <div class="first-buzz-spotlight" id="first-buzz-spotlight">
+          <div class="spotlight-placeholder">No buzzes recorded for this round.</div>
+        </div>
+
+        <button id="btn-reset-buzzer" class="btn btn-gold btn-block">🔔 Unlock / Reset Buzzer</button>
+
+        <!-- Buzzer History Log -->
+        <div class="buzz-history-wrapper">
+          <h3 class="sub-label">Recent Buzz History</h3>
+          <ul id="buzz-history-list" class="buzz-history-list">
+            <li class="empty-log">History will appear here when players buzz.</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Fast Money Bonus Round Console -->
+      <article class="host-card fm-host-deck" id="fm-host-deck">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" style="color: #FFD166;">💵 Fast Money Bonus Round</h2>
+            <p class="card-desc">Goal: 200 Combined Points for $20,000</p>
+          </div>
+          <button id="btn-trigger-fast-money" class="btn btn-gold btn-xs">Start Fast Money</button>
+        </div>
+
+        <!-- FM Timer Controls -->
+        <div class="fm-timer-control-row">
+          <div class="fm-timer-stat">
+            <span class="sub-label">TIMER:</span>
+            <span id="fm-host-timer" class="fm-timer-num">20s</span>
+          </div>
+          <div class="fm-timer-actions">
+            <button id="btn-fm-timer-start" class="btn btn-gold btn-xs">▶ Start</button>
+            <button id="btn-fm-timer-pause" class="btn btn-blue btn-xs">⏸ Pause</button>
+            <button id="btn-fm-timer-reset" class="btn btn-blue btn-xs">🔄 Reset</button>
+          </div>
+        </div>
+
+        <!-- Player 1 vs Player 2 Tabs -->
+        <div class="fm-player-tabs">
+          <button id="btn-tab-p1" class="fm-tab active" data-player="1">Player 1 (20s)</button>
+          <button id="btn-tab-p2" class="fm-tab" data-player="2">Player 2 (25s)</button>
+        </div>
+
+        <!-- 5 Questions Input Deck -->
+        <div class="fm-questions-input-list" id="fm-inputs-list">
+          <!-- 5 Questions inputs generated dynamically -->
+        </div>
+
+        <div class="fm-total-monitor">
+          <span>FAST MONEY TOTAL SCORE:</span>
+          <span id="fm-host-total" class="fm-total-val">0 / 200 PTS</span>
+        </div>
+      </article>
+
+    </section>
+
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/host.js"></script>
+</body>
+</html>

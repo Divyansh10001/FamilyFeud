@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Family Feud - Mobile Player Buzzer</title>
+  <meta name="description" content="Mobile-first real-time player buzzer for Family Feud multiplayer web application.">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/buzzer.css">
+</head>
+<body class="buzzer-body">
+
+  <audio id="sound-buzz" src="/assets/sounds/buzz.wav" preload="auto"></audio>
+
+  <!-- Mobile Top Bar -->
+  <header class="buzzer-header">
+    <div class="buzzer-brand">
+      <span class="buzzer-logo-dot"></span>
+      <h1 class="buzzer-title">FEUD BUZZER</h1>
+    </div>
+    <div class="header-tools">
+      <span id="connection-status" class="conn-badge online">ONLINE</span>
+    </div>
+  </header>
+
+  <!-- Player Profile & Team Selector Drawer/Header -->
+  <section class="player-config-bar" aria-label="Player Identity & Team Selection">
+    <div class="config-inputs">
+      <div class="name-field">
+        <label for="player-name-input" class="sr-only">Player Name</label>
+        <input type="text" id="player-name-input" class="name-input" placeholder="Your Name" maxlength="20" autocomplete="off">
+      </div>
+
+      <div class="team-selector" role="radiogroup" aria-label="Select Team">
+        <button type="button" class="team-btn active" id="btn-select-team-a" data-team="teamA" aria-checked="true">
+          TEAM A
+        </button>
+        <button type="button" class="team-btn" id="btn-select-team-b" data-team="teamB" aria-checked="false">
+          TEAM B
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Massive Tactile Buzzer Area -->
+  <main class="buzzer-stage">
+    
+    <div class="buzzer-status-pill" id="buzzer-status-pill">
+      BUZZER UNLOCKED • READY
+    </div>
+
+    <!-- The Massive Touch Button -->
+    <button id="main-buzz-btn" class="massive-buzz-btn ready" aria-label="Buzz in now">
+      <div class="buzz-btn-outer-ring">
+        <div class="buzz-btn-core">
+          <div class="buzz-icon" id="buzz-icon">⚡</div>
+          <div class="buzz-label-primary" id="buzz-label-primary">BUZZ IN!</div>
+          <div class="buzz-label-sub" id="buzz-label-sub">TAP QUICKLY</div>
+        </div>
+      </div>
+    </button>
+
+    <!-- Feedback Banner below button -->
+    <div id="buzzer-feedback" class="buzzer-feedback">
+      Tap the big button the moment you know the answer!
+    </div>
+
+  </main>
+
+  <footer class="buzzer-footer">
+    <a href="/board" target="_blank" class="footer-link">Watch Game Board ↗</a>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js"></script>
+  <script src="/js/buzzer.js"></script>
+</body>
+</html>
