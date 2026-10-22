@@ -1,4 +1,4 @@
-// Host Dashboard Client Logic with Authentic Real Show Rules & Direct Controls
+// Host Dashboard Client Logic with Authentic Real Show Rules
 document.addEventListener('DOMContentLoaded', () => {
   const socket = io();
 
@@ -17,26 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hostPhaseBadge = document.getElementById('host-phase-badge');
   const hostPhaseDesc = document.getElementById('host-phase-desc');
   const foBuzzerStatus = document.getElementById('fo-buzzer-status');
-
-  // Board Control Pills
-  const btnCtrlTeamA = document.getElementById('btn-ctrl-teama');
-  const btnCtrlTeamB = document.getElementById('btn-ctrl-teamb');
-  const ctrlLabelA = document.getElementById('ctrl-label-a');
-  const ctrlLabelB = document.getElementById('ctrl-label-b');
-
-  // Steal Deck DOM
   const stealDeck = document.getElementById('steal-deck');
-  const stealStruckTeam = document.getElementById('steal-struck-team');
-  const stealCanTeam = document.getElementById('steal-can-team');
-  const stealDescText = document.getElementById('steal-desc-text');
-  const stealAnswerSelect = document.getElementById('steal-answer-select');
-  const btnStealSuccess = document.getElementById('btn-steal-success');
-  const btnStealFail = document.getElementById('btn-steal-fail');
-  const btnSwapSteal = document.getElementById('btn-swap-steal');
-  const stealPtsSuccess = document.getElementById('steal-pts-success');
-  const stealTeamSuccess = document.getElementById('steal-team-success');
-  const stealTeamFail = document.getElementById('steal-team-fail');
-  const stealPtsFail = document.getElementById('steal-pts-fail');
 
   const strikesCountBadge = document.getElementById('strikes-count-badge');
   const hostDots = [
@@ -60,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnResetBuzzer = document.getElementById('btn-reset-buzzer');
   const btnNextRound = document.getElementById('btn-next-round');
   const btnResetGame = document.getElementById('btn-reset-game');
+
+  // Steal Controls
+  const btnStealSuccess = document.getElementById('btn-steal-success');
+  const btnStealFail = document.getElementById('btn-steal-fail');
 
   // Rename Teams Bar
   const btnRenameTeams = document.getElementById('btn-rename-teams');
@@ -121,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       row.className = `answer-row-item ${isRevealed ? 'is-revealed' : ''}`;
 
       const actionBtnClass = isRevealed ? 'btn-hide' : 'btn-reveal';
-      const actionBtnText = isRevealed ? '✓ Revealed (Hide)' : `👁 Reveal (#${idx + 1})`;
+      const actionBtnText = isRevealed ? '✓ Revealed (Hide)' : '👁 Reveal Answer';
 
       row.innerHTML = `
         <span class="row-index">#${idx + 1}${isTop ? ' ⭐' : ''}</span>
@@ -142,19 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       hostAnswersList.appendChild(row);
-    });
-  }
-
-  // Populate Unrevealed Answers in Steal Picker
-  function updateStealAnswerPicker(answers = [], revealed = []) {
-    stealAnswerSelect.innerHTML = '<option value="">-- Generic Steal (or choose guessed answer to reveal) --</option>';
-    answers.forEach((ans, idx) => {
-      if (!revealed.includes(idx)) {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = `#${idx + 1}: ${ans.text} (${ans.points} pts)`;
-        stealAnswerSelect.appendChild(opt);
-      }
     });
   }
 
@@ -194,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
+      // Auto update text on change
       const textInput = row.querySelector(`#fm-text-${idx}`);
       textInput.addEventListener('blur', () => {
         const textVal = textInput.value.trim();
@@ -223,22 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameB = (state.teamNames && state.teamNames.teamB) || 'Team B';
     hostLabelTeamA.textContent = nameA;
     hostLabelTeamB.textContent = nameB;
-    ctrlLabelA.textContent = nameA;
-    ctrlLabelB.textContent = nameB;
     foNameA.textContent = `${nameA.toUpperCase()} WINS FACE-OFF`;
     foNameB.textContent = `${nameB.toUpperCase()} WINS FACE-OFF`;
 
     btnAwardTeamA.textContent = `🏆 Award ${state.boardPoints || 0} Pts to ${nameA}`;
     btnAwardTeamB.textContent = `🏆 Award ${state.boardPoints || 0} Pts to ${nameB}`;
-
-    // Active Board Control Pills
-    btnCtrlTeamA.className = 'btn-ctrl-pill';
-    btnCtrlTeamB.className = 'btn-ctrl-pill';
-    if (state.controllingTeam === 'teamA') {
-      btnCtrlTeamA.classList.add('active', 'team-a-active');
-    } else if (state.controllingTeam === 'teamB') {
-      btnCtrlTeamB.classList.add('active', 'team-b-active');
-    }
 
     // Question & Round
     hostQuestionText.textContent = state.currentQuestion || 'No question active';
@@ -261,25 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
       else dot.classList.remove('active');
     });
 
-    // Answers Matrix & Steal Picker
+    // Answers Matrix
     renderAnswersTable(state.currentAnswers || [], state.revealedAnswers || []);
-    updateStealAnswerPicker(state.currentAnswers || [], state.revealedAnswers || []);
-
-    // Steal Deck Data (Crystal Clear Names & Point Values)
-    const struckTeamKey = state.controllingTeam || 'teamA';
-    const stealingTeamKey = state.stealingTeam || (struckTeamKey === 'teamA' ? 'teamB' : 'teamA');
-    const struckName = struckTeamKey === 'teamA' ? nameA : nameB;
-    const stealingName = stealingTeamKey === 'teamA' ? nameA : nameB;
-    const bankVal = state.boardPoints || 0;
-
-    stealStruckTeam.textContent = struckName;
-    stealCanTeam.textContent = stealingName;
-    stealDescText.textContent = `${struckName} struck out with 3 strikes! ${stealingName} confers for ONE guess to steal the bank.`;
-
-    stealPtsSuccess.textContent = bankVal;
-    stealTeamSuccess.textContent = stealingName;
-    stealTeamFail.textContent = struckName;
-    stealPtsFail.textContent = bankVal;
 
     // TV Show Phase Instructions & Steal Deck Toggle
     if (state.phase === 'FACE_OFF' || !state.phase) {
@@ -292,7 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
       hostPhaseDesc.textContent = `${playingName} is guessing answers. Click reveal for correct answers. Award Strike (+1) for wrong answers.`;
       stealDeck.classList.add('hidden');
     } else if (state.phase === 'STEAL_CHANCE') {
-      hostPhaseBadge.textContent = `PHASE: ⚡ 3 STRIKES! STEAL CHANCE`;
+      const stealingName = state.stealingTeam === 'teamA' ? nameA : nameB;
+      hostPhaseBadge.textContent = `PHASE: 3 STRIKES! STEAL ATTEMPT`;
       hostPhaseDesc.textContent = `${stealingName} is conferring! Ask their captain for ONE answer. Then click Steal Successful or Steal Failed below.`;
       stealDeck.classList.remove('hidden');
     } else if (state.phase === 'ROUND_OVER') {
@@ -374,29 +320,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Action listeners
-  btnLoadQuestion.addEventListener('click', () => socket.emit('load-question'));
-  btnRevealAll.addEventListener('click', () => socket.emit('reveal-all'));
-  btnHideAll.addEventListener('click', () => socket.emit('hide-all'));
-  btnAwardStrike.addEventListener('click', () => socket.emit('award-strike'));
-  btnClearStrikes.addEventListener('click', () => socket.emit('clear-strikes'));
-  btnAwardTeamA.addEventListener('click', () => socket.emit('award-points', { team: 'teamA' }));
-  btnAwardTeamB.addEventListener('click', () => socket.emit('award-points', { team: 'teamB' }));
-  btnResetBuzzer.addEventListener('click', () => socket.emit('reset-buzzer'));
-  btnNextRound.addEventListener('click', () => socket.emit('next-round'));
+  btnLoadQuestion.addEventListener('click', () => {
+    socket.emit('load-question');
+  });
+
+  btnRevealAll.addEventListener('click', () => {
+    socket.emit('reveal-all');
+  });
+
+  btnHideAll.addEventListener('click', () => {
+    socket.emit('hide-all');
+  });
+
+  btnAwardStrike.addEventListener('click', () => {
+    socket.emit('award-strike');
+  });
+
+  btnClearStrikes.addEventListener('click', () => {
+    socket.emit('clear-strikes');
+  });
+
+  btnAwardTeamA.addEventListener('click', () => {
+    socket.emit('award-points', { team: 'teamA' });
+  });
+
+  btnAwardTeamB.addEventListener('click', () => {
+    socket.emit('award-points', { team: 'teamB' });
+  });
+
+  btnResetBuzzer.addEventListener('click', () => {
+    socket.emit('reset-buzzer');
+  });
+
+  btnNextRound.addEventListener('click', () => {
+    socket.emit('next-round');
+  });
 
   btnResetGame.addEventListener('click', () => {
     if (confirm('Are you sure you want to reset the entire game? Scores will reset to 0.')) {
       socket.emit('reset-game');
     }
-  });
-
-  // Board Control Pills (Assign Playing Team Directly)
-  btnCtrlTeamA.addEventListener('click', () => {
-    socket.emit('set-controlling-team', 'teamA');
-  });
-
-  btnCtrlTeamB.addEventListener('click', () => {
-    socket.emit('set-controlling-team', 'teamB');
   });
 
   // Face-Off Decision Buttons (Play or Pass)
@@ -410,26 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Steal Resolution Buttons
   btnStealSuccess.addEventListener('click', () => {
-    const stealingTeamKey = currentGameState.stealingTeam || (currentGameState.controllingTeam === 'teamA' ? 'teamB' : 'teamA');
-    const answerIndexVal = stealAnswerSelect.value ? parseInt(stealAnswerSelect.value, 10) : undefined;
-    socket.emit('resolve-steal', {
-      success: true,
-      winningTeam: stealingTeamKey,
-      answerIndex: answerIndexVal
-    });
+    socket.emit('resolve-steal', { success: true });
   });
 
   btnStealFail.addEventListener('click', () => {
-    const controllingTeamKey = currentGameState.controllingTeam || 'teamA';
-    socket.emit('resolve-steal', {
-      success: false,
-      winningTeam: controllingTeamKey
-    });
-  });
-
-  // Swap Stealing Team button (override in case wrong team was set)
-  btnSwapSteal.addEventListener('click', () => {
-    socket.emit('swap-stealing-team');
+    socket.emit('resolve-steal', { success: false });
   });
 
   // Edit Family Names
@@ -460,9 +408,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Fast Money Timer
-  btnFmTimerStart.addEventListener('click', () => socket.emit('fast-money-timer', { action: 'start' }));
-  btnFmTimerPause.addEventListener('click', () => socket.emit('fast-money-timer', { action: 'pause' }));
-  btnFmTimerReset.addEventListener('click', () => socket.emit('fast-money-timer', { action: 'reset', player: activeFmPlayer }));
+  btnFmTimerStart.addEventListener('click', () => {
+    socket.emit('fast-money-timer', { action: 'start' });
+  });
+
+  btnFmTimerPause.addEventListener('click', () => {
+    socket.emit('fast-money-timer', { action: 'pause' });
+  });
+
+  btnFmTimerReset.addEventListener('click', () => {
+    socket.emit('fast-money-timer', { action: 'reset', player: activeFmPlayer });
+  });
 
   // Fast Money Tabs
   btnTabP1.addEventListener('click', () => {
@@ -494,9 +450,14 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.emit('set-multiplier', multSelect.value);
   });
 
-  // Custom question drawer
-  btnToggleCustom.addEventListener('click', () => customDrawer.classList.toggle('hidden'));
-  btnCancelCustom.addEventListener('click', () => customDrawer.classList.add('hidden'));
+  // Custom question drawer toggles
+  btnToggleCustom.addEventListener('click', () => {
+    customDrawer.classList.toggle('hidden');
+  });
+
+  btnCancelCustom.addEventListener('click', () => {
+    customDrawer.classList.add('hidden');
+  });
 
   btnSaveCustom.addEventListener('click', () => {
     const qText = customQInput.value.trim();
@@ -527,36 +488,5 @@ document.addEventListener('DOMContentLoaded', () => {
     customDrawer.classList.add('hidden');
     customQInput.value = '';
     setupCustomInputs();
-  });
-
-  // Keyboard Hotkeys for Host
-  window.addEventListener('keydown', (e) => {
-    // Ignore hotkeys when typing in inputs
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-      return;
-    }
-
-    if (e.code === 'Space' || e.key === 's' || e.key === 'S') {
-      e.preventDefault();
-      socket.emit('award-strike');
-    } else if (e.key === 'r' || e.key === 'R') {
-      e.preventDefault();
-      socket.emit('reset-buzzer');
-    } else if (e.key === 'c' || e.key === 'C') {
-      e.preventDefault();
-      socket.emit('clear-strikes');
-    } else if (e.key === 'n' || e.key === 'N') {
-      e.preventDefault();
-      socket.emit('next-round');
-    } else if (e.key >= '1' && e.key <= '8') {
-      const idx = parseInt(e.key, 10) - 1;
-      if (currentGameState && currentGameState.currentAnswers && idx < currentGameState.currentAnswers.length) {
-        if (currentGameState.revealedAnswers.includes(idx)) {
-          socket.emit('hide-answer', idx);
-        } else {
-          socket.emit('reveal-answer', idx);
-        }
-      }
-    }
   });
 });

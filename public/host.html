@@ -37,34 +37,12 @@
     </div>
   </section>
 
-  <!-- Active Board Control & TV Show Phase Bar -->
+  <!-- Real TV Show Phase Banner -->
   <aside class="host-phase-bar" id="host-phase-bar">
     <div class="phase-indicator-badge" id="host-phase-badge">PHASE: THE FACE-OFF</div>
-    
-    <!-- Quick Board Control Selectors -->
-    <div class="board-control-group">
-      <span class="sub-label">PLAYING TEAM:</span>
-      <button id="btn-ctrl-teama" class="btn-ctrl-pill" data-team="teamA">
-        <span class="ctrl-dot"></span> <span id="ctrl-label-a">Team A</span> Playing
-      </button>
-      <button id="btn-ctrl-teamb" class="btn-ctrl-pill" data-team="teamB">
-        <span class="ctrl-dot"></span> <span id="ctrl-label-b">Team B</span> Playing
-      </button>
-    </div>
-
     <div class="phase-instruction" id="host-phase-desc">
-      Have 1 player from each family step to the buzzer. Read question, lock in first buzz, and decide PLAY or PASS.
+      Have 1 player from each family step to the buzzer. Read the question, lock in the first buzz, and decide PLAY or PASS.
     </div>
-  </aside>
-
-  <!-- Quick Keyboard Shortcuts Bar -->
-  <aside class="hotkeys-bar" aria-label="Keyboard Shortcuts">
-    <span class="hotkeys-title">⚡ SHORTCUTS:</span>
-    <span class="hotkey-item"><kbd>Space</kbd> / <kbd>S</kbd> = Strike (+1)</span>
-    <span class="hotkey-item"><kbd>1</kbd>–<kbd>8</kbd> = Reveal Ans</span>
-    <span class="hotkey-item"><kbd>R</kbd> = Reset Buzzer</span>
-    <span class="hotkey-item"><kbd>C</kbd> = Clear Strikes</span>
-    <span class="hotkey-item"><kbd>N</kbd> = Next Round</span>
   </aside>
 
   <main class="host-grid">
@@ -109,7 +87,7 @@
       <!-- Step 1: Face-Off Resolution Box (Real Show Rule) -->
       <article class="host-card face-off-deck" id="face-off-deck">
         <div class="card-header">
-          <h2 class="card-title">1. The Face-Off Decision</h2>
+          <h2 class="card-title">1. The Face-Off & Decision</h2>
           <span class="badge-gold" id="fo-buzzer-status">WAITING FOR BUZZ</span>
         </div>
 
@@ -145,46 +123,18 @@
       <!-- Step 2: The Steal Resolution Deck (Activated on 3 Strikes!) -->
       <article class="host-card steal-deck hidden" id="steal-deck">
         <div class="card-header">
-          <div class="header-left">
-            <span class="badge-crimson">⚡ 3 STRIKES</span>
-            <h2 class="card-title" style="color: #FF5C77; margin-left: 0.5rem;">THE STEAL OPPORTUNITY</h2>
-          </div>
-          <button id="btn-swap-steal" class="btn btn-blue btn-xs" title="Swap who is stealing if assigned incorrectly">
-            🔄 Swap Stealing Team
-          </button>
+          <h2 class="card-title" style="color: var(--strike-color);">⚡ 3 Strikes! The Steal Chance</h2>
+          <span class="badge-crimson">OPPOSING TEAM CONFERS</span>
         </div>
-
-        <!-- Team Matchup Display for the Steal -->
-        <div class="steal-matchup-summary">
-          <div class="steal-role-box role-struck">
-            <span class="role-title">STRUCK OUT (PLAYING TEAM)</span>
-            <span class="role-team-name" id="steal-struck-team">TEAM A</span>
-          </div>
-          <div class="steal-vs-arrow">➔</div>
-          <div class="steal-role-box role-stealing">
-            <span class="role-title">CAN STEAL (CONFERRING TEAM)</span>
-            <span class="role-team-name" id="steal-can-team">TEAM B</span>
-          </div>
-        </div>
-
-        <p class="card-desc" id="steal-desc-text">
-          Playing team got 3 strikes! Defending team confers for ONE answer to steal the entire bank.
+        <p class="card-desc">
+          The playing team struck out (3 Strikes)! The defending family gets ONE guess to steal the bank points.
         </p>
-
-        <!-- Unrevealed Answers Quick Selector for Steal -->
-        <div class="steal-answer-picker">
-          <label for="steal-answer-select" class="sub-label">Did they name a hidden answer on the board?</label>
-          <select id="steal-answer-select" class="input-select steal-select">
-            <option value="">-- Select revealed answer (or leave for generic steal) --</option>
-          </select>
-        </div>
-
         <div class="steal-action-grid">
-          <button id="btn-steal-success" class="btn btn-gold btn-block steal-btn-main">
-            ✅ STEAL SUCCESSFUL → Award <span id="steal-pts-success">0</span> Pts to <span id="steal-team-success">Team B</span>
+          <button id="btn-steal-success" class="btn btn-gold btn-block">
+            ✅ Steal SUCCESSFUL! (Award Bank to Defending Team)
           </button>
-          <button id="btn-steal-fail" class="btn btn-crimson btn-block steal-btn-main">
-            ❌ STEAL FAILED → <span id="steal-team-fail">Team A</span> Keeps <span id="steal-pts-fail">0</span> Pts
+          <button id="btn-steal-fail" class="btn btn-crimson btn-block">
+            ❌ Steal FAILED! (Original Playing Team Keeps Bank)
           </button>
         </div>
       </article>
@@ -193,8 +143,8 @@
       <article class="host-card answers-card">
         <div class="card-header">
           <div>
-            <h2 class="card-title">Survey Answers Matrix</h2>
-            <p class="card-desc">Click reveal as players name correct survey answers (or press 1-8)</p>
+            <h2 class="card-title">Survey Answers</h2>
+            <p class="card-desc">Click reveal as players name correct survey answers</p>
           </div>
           <div class="bulk-actions">
             <button id="btn-reveal-all" class="btn btn-gold btn-xs">Reveal All</button>
