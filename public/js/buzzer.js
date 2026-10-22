@@ -14,17 +14,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const buzzLabelSub = document.getElementById('buzz-label-sub');
   const buzzerFeedback = document.getElementById('buzzer-feedback');
 
+  // Match Strip DOM Elements
+  const stripTeamA = document.getElementById('strip-team-a');
+  const stripTeamB = document.getElementById('strip-team-b');
+  const stripNameA = document.getElementById('strip-name-a');
+  const stripNameB = document.getElementById('strip-name-b');
+  const stripScoreA = document.getElementById('strip-score-a');
+  const stripScoreB = document.getElementById('strip-score-b');
+  const stripRound = document.getElementById('strip-round');
+  const stripBank = document.getElementById('strip-bank');
+
   // Player state
   let selectedTeam = localStorage.getItem('feud_team') || 'teamA';
   let playerName = localStorage.getItem('feud_name') || '';
   let isLockedLocally = false;
   let didIBuzzFirst = false;
+  let latestTeamNames = { teamA: 'TEAM A', teamB: 'TEAM B' };
 
   // Restore saved player profile
   if (playerName) {
     playerNameInput.value = playerName;
   }
   setTeam(selectedTeam);
+
+  function getTeamDisplayName(teamKeyOrName) {
+    if (teamKeyOrName === 'teamA') return latestTeamNames.teamA || 'TEAM A';
+    if (teamKeyOrName === 'teamB') return latestTeamNames.teamB || 'TEAM B';
+    return teamKeyOrName || 'Opposing Team';
+  }
 
   // Team Selection
   function setTeam(team) {
@@ -90,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       buzzIcon.textContent = '🔒';
       buzzLabelPrimary.textContent = 'LOCKED';
 
-      const teamName = info.team === 'teamA' ? 'TEAM A' : 'TEAM B';
+      const teamName = getTeamDisplayName(info.team);
       const player = info.playerName || 'Player';
       buzzLabelSub.textContent = `${player} (${teamName})`;
       buzzerFeedback.textContent = `${player} from ${teamName} buzzed in first! Waiting for host to reset.`;
@@ -104,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
     }
     const now = Date.now();
-    if (now - lastTapTime < 300) return; // Prevent double trigger
+    if (now - lastTapTime < 280) return; // Prevent double trigger
     lastTapTime = now;
 
     if (isLockedLocally) {
@@ -137,8 +154,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   socket.on('state-update', (state) => {
     if (state.teamNames) {
-      btnSelectTeamA.textContent = state.teamNames.teamA || 'TEAM A';
-      btnSelectTeamB.textContent = state.teamNames.teamB || 'TEAM B';
+      latestTeamNames = {
+        teamA: state.teamNames.teamA || 'TEAM A',
+        teamB: state.teamNames.teamB || 'TEAM B'
+      };
+      btnSelectTeamA.textContent = latestTeamNames.teamA;
+      btnSelectTeamB.textContent = latestTeamNames.teamB;
+      if (stripNameA) stripNameA.textContent = latestTeamNames.teamA;
+      if (stripNameB) stripNameB.textContent = latestTeamNames.teamB;
+    }
+
+    // Update Match Scoreboard Strip
+    if (stripScoreA && state.scores) stripScoreA.textContent = state.scores.teamA || 0;
+    if (stripScoreB && state.scores) stripScoreB.textContent = state.scores.teamB || 0;
+    if (stripRound) stripRound.textContent = `RD ${state.currentRound || 1} (${state.roundMultiplier || 1}X)`;
+    if (stripBank) stripBank.textContent = `${state.boardPoints || 0} PTS`;
+
+    // Highlight controlling team on strip
+    if (stripTeamA && stripTeamB) {
+      stripTeamA.classList.toggle('is-playing', state.controllingTeam === 'teamA');
+      stripTeamB.classList.toggle('is-playing', state.controllingTeam === 'teamB');
     }
 
     const bState = state.buzzerState || {};
@@ -147,10 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (bState.buzzedTeam === selectedTeam && bState.playerName === currentName) {
         setBuzzerState('winner');
       } else {
-        const teamLabel = bState.buzzedTeam === 'teamA' 
-          ? (state.teamNames ? state.teamNames.teamA : 'TEAM A')
-          : (state.teamNames ? state.teamNames.teamB : 'TEAM B');
-        setBuzzerState('locked', { team: teamLabel, playerName: bState.playerName });
+        setBuzzerState('locked', { team: bState.buzzedTeam, playerName: bState.playerName });
       }
     } else {
       setBuzzerState('ready');

@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const stealAlertOverlay = document.getElementById('steal-alert-overlay');
   const stealAlertTeam = document.getElementById('steal-alert-team');
+  const stealStruckTeam = document.getElementById('steal-struck-team');
+  const stealAlertPoints = document.getElementById('steal-alert-points');
 
   const championOverlay = document.getElementById('champion-overlay');
   const championTeamName = document.getElementById('champion-team-name');
@@ -280,20 +282,112 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2200);
   }
 
-  // Steal Opportunity Alert Overlay
-  function showStealAlert(stealingTeam) {
-    if (stealOverlayTimeout) clearTimeout(stealOverlayTimeout);
-    const teamName = stealingTeam === 'teamA' 
-      ? (currentGameState && currentGameState.teamNames ? currentGameState.teamNames.teamA : 'TEAM A')
-      : (currentGameState && currentGameState.teamNames ? currentGameState.teamNames.teamB : 'TEAM B');
+  // Studio Broadcast Confetti Engine
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  let confettiCtx = null;
+  let confettiParticles = [];
+  let confettiAnimId = null;
 
-    stealAlertTeam.textContent = teamName;
+  if (confettiCanvas) {
+    confettiCtx = confettiCanvas.getContext('2d');
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  }
+
+  function launchConfetti(durationMs = 4000) {
+    if (!confettiCtx || !confettiCanvas) return;
+    const colors = ['#F2A900', '#FFD166', '#00D4FF', '#FF8800', '#D90429', '#FFFFFF', '#00E676'];
+    const particleCount = 130;
+
+    for (let i = 0; i < particleCount; i++) {
+      confettiParticles.push({
+        x: Math.random() * confettiCanvas.width,
+        y: -20 - Math.random() * 50,
+        w: 8 + Math.random() * 10,
+        h: 6 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 6,
+        vy: 3 + Math.random() * 5,
+        rot: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 8,
+        opacity: 1
+      });
+    }
+
+    if (!confettiAnimId) {
+      animateConfetti();
+    }
+
+    setTimeout(() => {
+      // fade out remaining
+      confettiParticles.forEach(p => p.fading = true);
+    }, Math.max(1000, durationMs - 1200));
+  }
+
+  function animateConfetti() {
+    if (!confettiCtx || !confettiCanvas) return;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+    for (let i = confettiParticles.length - 1; i >= 0; i--) {
+      const p = confettiParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rotSpeed;
+
+      if (p.fading) {
+        p.opacity -= 0.02;
+      }
+
+      if (p.opacity <= 0 || p.y > confettiCanvas.height + 30) {
+        confettiParticles.splice(i, 1);
+        continue;
+      }
+
+      confettiCtx.save();
+      confettiCtx.translate(p.x, p.y);
+      confettiCtx.rotate((p.rot * Math.PI) / 180);
+      confettiCtx.globalAlpha = Math.max(0, p.opacity);
+      confettiCtx.fillStyle = p.color;
+      confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      confettiCtx.restore();
+    }
+
+    if (confettiParticles.length > 0) {
+      confettiAnimId = requestAnimationFrame(animateConfetti);
+    } else {
+      confettiAnimId = null;
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+  }
+
+  // Steal Opportunity Alert Overlay
+  function showStealAlert(stealingTeam, controllingTeam, boardPoints) {
+    if (stealOverlayTimeout) clearTimeout(stealOverlayTimeout);
+    
+    // Resolve clean custom team names
+    const nameA = (currentGameState && currentGameState.teamNames && currentGameState.teamNames.teamA) || 'TEAM A';
+    const nameB = (currentGameState && currentGameState.teamNames && currentGameState.teamNames.teamB) || 'TEAM B';
+
+    const stealingKey = stealingTeam || (controllingTeam === 'teamA' ? 'teamB' : 'teamA');
+    const struckKey = controllingTeam || (stealingKey === 'teamA' ? 'teamB' : 'teamA');
+
+    const stealingName = stealingKey === 'teamA' ? nameA : nameB;
+    const struckName = struckKey === 'teamA' ? nameA : nameB;
+
+    if (stealAlertTeam) stealAlertTeam.textContent = stealingName;
+    if (stealStruckTeam) stealStruckTeam.textContent = struckName;
+    if (stealAlertPoints) stealAlertPoints.textContent = `${boardPoints || (currentGameState ? currentGameState.boardPoints : 0)} PTS`;
+
     stealAlertOverlay.classList.remove('hidden');
     window.soundEngine.playStealAlert();
 
     stealOverlayTimeout = setTimeout(() => {
       stealAlertOverlay.classList.add('hidden');
-    }, 2500);
+    }, 3800);
   }
 
   // Match Champions Popup (300+ Points)
@@ -302,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     championFinalScore.textContent = `${score} POINTS`;
     championOverlay.classList.remove('hidden');
     window.soundEngine.playWin();
+    launchConfetti(6500);
 
     setTimeout(() => {
       championOverlay.classList.add('hidden');
@@ -313,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gpFinalScore.textContent = `${score} POINTS!`;
     grandPrizeOverlay.classList.remove('hidden');
     window.soundEngine.playGrandPrize();
+    launchConfetti(8000);
 
     setTimeout(() => {
       grandPrizeOverlay.classList.add('hidden');
@@ -348,12 +444,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('steal-chance', (data) => {
-    showStealAlert(data.stealingTeam);
+    showStealAlert(data.stealingTeam, data.controllingTeam, data.boardPoints);
   });
 
   socket.on('steal-resolved', (data) => {
     if (data.success) {
       window.soundEngine.playWin();
+      launchConfetti(4000);
     } else {
       window.soundEngine.playStrike();
     }
@@ -361,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   socket.on('board-cleared', () => {
     window.soundEngine.playWin();
+    launchConfetti(4500);
   });
 
   socket.on('buzzed', (data) => {
@@ -374,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   socket.on('points-awarded', () => {
     window.soundEngine.playWin();
+    launchConfetti(3000);
   });
 
   socket.on('game-over', (data) => {

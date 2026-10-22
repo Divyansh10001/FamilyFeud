@@ -409,6 +409,33 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Set controlling team directly
+  socket.on('set-controlling-team', (team) => {
+    if (team === 'teamA' || team === 'teamB') {
+      gameState.controllingTeam = team;
+      gameState.stealingTeam = team === 'teamA' ? 'teamB' : 'teamA';
+      if (gameState.phase !== 'FAST_MONEY' && gameState.phase !== 'GAME_OVER') {
+        gameState.phase = 'IN_PLAY';
+      }
+      io.emit('state-update', gameState);
+    }
+  });
+
+  // Swap Stealing Team in case host wants to flip
+  socket.on('swap-stealing-team', () => {
+    if (gameState.phase === 'STEAL_CHANCE') {
+      const prevStealing = gameState.stealingTeam || (gameState.controllingTeam === 'teamA' ? 'teamB' : 'teamA');
+      gameState.stealingTeam = prevStealing === 'teamA' ? 'teamB' : 'teamA';
+      gameState.controllingTeam = gameState.stealingTeam === 'teamA' ? 'teamB' : 'teamA';
+      io.emit('steal-chance', {
+        stealingTeam: gameState.stealingTeam,
+        controllingTeam: gameState.controllingTeam,
+        boardPoints: gameState.boardPoints
+      });
+      io.emit('state-update', gameState);
+    }
+  });
+
   // Face-Off Resolution: Winner chosen & Play or Pass
   // data: { winner: 'teamA'|'teamB', action: 'play'|'pass' }
   socket.on('face-off-decision', (data) => {
@@ -430,6 +457,7 @@ io.on('connection', (socket) => {
     io.emit('face-off-decided', {
       winner: winningTeam,
       controllingTeam: gameState.controllingTeam,
+      stealingTeam: gameState.stealingTeam,
       action: data.action
     });
     io.emit('state-update', gameState);
@@ -454,7 +482,7 @@ io.on('connection', (socket) => {
         // Check if all answers on board are cleared while in play
         if (gameState.phase === 'IN_PLAY' && gameState.revealedAnswers.length === gameState.currentAnswers.length) {
           // Playing team cleared the board! Automatic win of the bank points
-          const team = gameState.controllingTeam;
+          const team = gameState.controllingTeam || 'teamA';
           if (team) {
             const wonPts = gameState.boardPoints;
             gameState.scores[team] += wonPts;
@@ -507,10 +535,14 @@ io.on('connection', (socket) => {
 
     io.emit('strike-awarded', { strikes: gameState.strikes });
 
-    // REAL SHOW RULE: If 3 strikes reached while in play, OPPOSING TEAM GETS CHANCE TO STEAL!
-    if (gameState.strikes === 3 && gameState.phase === 'IN_PLAY') {
+    // REAL SHOW RULE: If 3 strikes reached, OPPOSING TEAM GETS CHANCE TO STEAL!
+    if (gameState.strikes === 3) {
       gameState.phase = 'STEAL_CHANCE';
+      if (!gameState.controllingTeam) {
+        gameState.controllingTeam = (gameState.buzzerState && gameState.buzzerState.buzzedTeam) || 'teamA';
+      }
       gameState.stealingTeam = gameState.controllingTeam === 'teamA' ? 'teamB' : 'teamA';
+
       io.emit('steal-chance', {
         stealingTeam: gameState.stealingTeam,
         controllingTeam: gameState.controllingTeam,
@@ -529,45 +561,50 @@ io.on('connection', (socket) => {
   });
 
   // Resolve The Steal (Real Show Rule)
-  // data: { success: boolean, answerIndex?: number }
+  // data: { success: boolean, winningTeam?: 'teamA'|'teamB', answerIndex?: number }
   socket.on('resolve-steal', (data) => {
     if (gameState.phase !== 'STEAL_CHANCE') return;
     const isSuccess = Boolean(data && data.success);
     const awardedPoints = gameState.boardPoints;
 
+    // Safety fallback: ensure teams are defined
+    if (!gameState.controllingTeam) gameState.controllingTeam = 'teamA';
+    if (!gameState.stealingTeam) gameState.stealingTeam = gameState.controllingTeam === 'teamA' ? 'teamB' : 'teamA';
+
+    // Allow explicit winningTeam or infer based on isSuccess
+    let winnerTeam;
+    if (data && (data.winningTeam === 'teamA' || data.winningTeam === 'teamB')) {
+      winnerTeam = data.winningTeam;
+    } else {
+      winnerTeam = isSuccess ? gameState.stealingTeam : gameState.controllingTeam;
+    }
+
+    gameState.scores[winnerTeam] = (gameState.scores[winnerTeam] || 0) + awardedPoints;
+
+    // Reveal the stolen answer if specified
+    if (data && typeof data.answerIndex === 'number' && !gameState.revealedAnswers.includes(data.answerIndex)) {
+      gameState.revealedAnswers.push(data.answerIndex);
+    }
+
+    gameState.phase = 'ROUND_OVER';
+    gameState.boardPoints = 0;
+
     if (isSuccess) {
-      // Steal SUCCESSFUL! Opposing team gets all bank points
-      const winnerTeam = gameState.stealingTeam;
-      gameState.scores[winnerTeam] += awardedPoints;
-
-      // Reveal the stolen answer if specified
-      if (typeof data.answerIndex === 'number' && !gameState.revealedAnswers.includes(data.answerIndex)) {
-        gameState.revealedAnswers.push(data.answerIndex);
-      }
-
-      gameState.phase = 'ROUND_OVER';
-      gameState.boardPoints = 0;
-
       io.emit('steal-resolved', {
         success: true,
         winningTeam: winnerTeam,
+        stealingTeam: gameState.stealingTeam,
+        controllingTeam: gameState.controllingTeam,
         pointsAwarded: awardedPoints,
         newScore: gameState.scores[winnerTeam]
       });
     } else {
-      // Steal FAILED! Original playing team keeps the bank points
-      const winnerTeam = gameState.controllingTeam;
-      gameState.scores[winnerTeam] += awardedPoints;
-
-      gameState.phase = 'ROUND_OVER';
-      gameState.boardPoints = 0;
-
-      // Strike sound for failed steal
       io.emit('strike-awarded', { strikes: 3 });
-
       io.emit('steal-resolved', {
         success: false,
         winningTeam: winnerTeam,
+        stealingTeam: gameState.stealingTeam,
+        controllingTeam: gameState.controllingTeam,
         pointsAwarded: awardedPoints,
         newScore: gameState.scores[winnerTeam]
       });

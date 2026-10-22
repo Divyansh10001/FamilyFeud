@@ -24,6 +24,7 @@
       <span class="brand-badge">TV SHOW</span>
       <h1 class="brand-title">FAMILY FEUD</h1>
       <span class="target-rule-badge">FIRST TO 300 PTS WINS</span>
+      <span class="on-air-pill"><span class="on-air-dot"></span>ON AIR</span>
     </div>
 
     <!-- Active Buzzer Alert Banner -->
@@ -154,10 +155,28 @@
   <!-- Steal Attempt Announcement Overlay -->
   <div id="steal-alert-overlay" class="steal-alert-overlay hidden">
     <div class="steal-card">
-      <div class="steal-icon">⚡</div>
-      <h2 class="steal-title">3 STRIKES!</h2>
-      <div class="steal-team" id="steal-alert-team">TEAM B</div>
-      <p class="steal-desc">HAS ONE CHANCE TO STEAL THE ENTIRE BANK!</p>
+      <div class="steal-card-header">
+        <span class="steal-badge">⚡ 3 STRIKES REACHED</span>
+        <h2 class="steal-title">THE STEAL OPPORTUNITY!</h2>
+      </div>
+
+      <div class="steal-teams-row">
+        <div class="steal-box steal-struck">
+          <span class="steal-sublabel">STRUCK OUT (PLAYING)</span>
+          <span class="steal-team-name" id="steal-struck-team">TEAM A</span>
+        </div>
+        <div class="steal-arrow-icon">➔</div>
+        <div class="steal-box steal-attempting">
+          <span class="steal-sublabel">CAN STEAL THE BANK</span>
+          <span class="steal-team-name" id="steal-alert-team">TEAM B</span>
+        </div>
+      </div>
+
+      <div class="steal-bank-banner">
+        <span class="steal-bank-label">BANK AT STAKE:</span>
+        <span class="steal-bank-val" id="steal-alert-points">0 PTS</span>
+        <span class="steal-desc">Name 1 remaining survey answer to take all points!</span>
+      </div>
     </div>
   </div>
 
@@ -181,6 +200,9 @@
       <p class="grand-prize-sub">THEY REACHED THE 200-POINT GOAL!</p>
     </div>
   </div>
+
+  <!-- Canvas Confetti Engine for TV Celebrations -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/audio.js"></script>

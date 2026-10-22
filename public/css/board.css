@@ -707,15 +707,56 @@ body.board-body {
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* Steal Alert Overlay */
+/* Live On-Air Pill */
+.on-air-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(217, 4, 41, 0.2);
+  border: 1px solid var(--strike-color);
+  color: #FF5C77;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  margin-left: 0.6rem;
+}
+
+.on-air-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--strike-color);
+  box-shadow: 0 0 10px var(--strike-color);
+  animation: live-blink 1.2s infinite;
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+/* Confetti Canvas */
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2500;
+}
+
+/* Steal Alert Overlay - TV Broadcast Style */
 .steal-alert-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(10, 17, 40, 0.9);
-  backdrop-filter: blur(10px);
+  background: radial-gradient(circle, rgba(10, 17, 40, 0.94) 0%, rgba(5, 8, 20, 0.98) 100%);
+  backdrop-filter: blur(12px);
   z-index: 1010;
   display: flex;
   align-items: center;
@@ -725,38 +766,132 @@ body.board-body {
 .steal-alert-overlay.hidden { display: none; }
 
 .steal-card {
-  background: linear-gradient(135deg, #2b0b14 0%, #0d162e 100%);
-  border: 4px solid var(--strike-color);
-  border-radius: 24px;
-  padding: 3rem 4rem;
+  background: linear-gradient(145deg, #2b0b14 0%, #101c3d 50%, #0d162e 100%);
+  border: 3px solid var(--strike-color);
+  border-radius: 26px;
+  padding: 2.75rem 3.5rem;
   text-align: center;
-  box-shadow: 0 0 60px rgba(217, 4, 41, 0.7);
+  box-shadow: 0 0 80px rgba(217, 4, 41, 0.6), inset 0 0 30px rgba(217, 4, 41, 0.2);
   animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 820px;
+  width: 90%;
 }
 
-.steal-icon { font-size: 4rem; margin-bottom: 0.5rem; }
+.steal-card-header {
+  margin-bottom: 1.5rem;
+}
+
+.steal-badge {
+  display: inline-block;
+  background: var(--strike-color);
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  margin-bottom: 0.6rem;
+  box-shadow: 0 0 15px rgba(217, 4, 41, 0.7);
+}
 
 .steal-title {
   font-family: var(--font-heading);
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   font-weight: 900;
-  color: var(--strike-color);
+  color: #FF5C77;
   letter-spacing: 2px;
-  margin-bottom: 0.5rem;
+  line-height: 1.1;
+  text-shadow: 0 0 30px rgba(217, 4, 41, 0.8);
 }
 
-.steal-team {
-  font-size: 3rem;
+.steal-teams-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.steal-box {
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.steal-box.steal-struck {
+  background: rgba(217, 4, 41, 0.18);
+  border: 2px solid rgba(217, 4, 41, 0.6);
+}
+
+.steal-box.steal-attempting {
+  background: rgba(242, 169, 0, 0.2);
+  border: 2px solid #F2A900;
+  box-shadow: 0 0 25px rgba(242, 169, 0, 0.4);
+  transform: scale(1.03);
+}
+
+.steal-sublabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.steal-struck .steal-sublabel { color: #FF8A9B; }
+.steal-attempting .steal-sublabel { color: #FFD166; }
+
+.steal-team-name {
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.steal-struck .steal-team-name { color: #FFFFFF; text-decoration: line-through rgba(217, 4, 41, 0.7); }
+.steal-attempting .steal-team-name { color: #FFD166; text-shadow: 0 0 20px rgba(242, 169, 0, 0.8); }
+
+.steal-arrow-icon {
+  font-size: 2.2rem;
+  color: #F2A900;
+  font-weight: 900;
+  animation: pulse-live 1s infinite;
+}
+
+.steal-bank-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding-top: 0.5rem;
+}
+
+.steal-bank-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.steal-bank-val {
+  font-family: var(--font-heading);
+  font-size: 3.4rem;
   font-weight: 900;
   color: #FFD166;
-  margin-bottom: 0.5rem;
+  line-height: 1;
+  text-shadow: 0 0 25px rgba(242, 169, 0, 0.8);
 }
 
 .steal-desc {
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
 }
 
 /* Champion & Grand Prize Overlays */
